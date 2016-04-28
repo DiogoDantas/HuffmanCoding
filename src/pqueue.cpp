@@ -24,7 +24,7 @@ Node* PQueue::dequeue(){
 
 Node* PQueue::top(){
 
-	return prt_queue.at(0);
+	return prt_queue.front();
 }
 
 void PQueue::build_heap(){
