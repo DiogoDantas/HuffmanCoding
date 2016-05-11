@@ -83,13 +83,16 @@ void Huffman::searchLeaves(Node* node, unsigned long symbol, int size){
 
 	if(node == NULL) return;
 	if(node->getLeftChild() == NULL && node->getRightChild() == NULL){
-		std::cout << node->getCode();
+		std::cout << node->getCode() << '\t';
 		int n = size;
 		unsigned long filter = 1;
-		filter << n-1;
-		while(n-- > 0)
+		filter <<= n-1;
+		while(n-- > 0){
 			std::cout << (filter & symbol ? 1 : 0);
-
+			filter >>= 1;
+		}
+		std::cout << std::endl;
+		return;
 	}
 	
 	symbol <<= 1;

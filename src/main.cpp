@@ -23,6 +23,8 @@ int main(int argc, char const *argv[])
 	h1->build_tree();
 	h1->print_tree(h1->getRoot());
 	std::cout<<std::endl;
+	h1->generateTable();
+	std::cout<<std::endl;
 	
 	return 0;
 }
