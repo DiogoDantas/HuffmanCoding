@@ -13,15 +13,16 @@ public:
 	Node* getLeftChild();
 	Node* getRightChild();
 	int getPriority();
-	int getCode();
+	char getCode();
 	void setLeftChild(Node * left_child);
 	void setRightChild(Node * right_child);
 	void setPriority(int priority);
-	void setCode(int code);
+	void increasePriority();
+	void setCode(char code);
 
 private:
 	int priority;
-	int code;
+	char code;
 	Node * left_child;
 	Node * right_child;
 	

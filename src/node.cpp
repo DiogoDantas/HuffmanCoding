@@ -2,7 +2,7 @@
 
 Node::Node(){
 	/*
-	* Inicialização dos atributos dos atributos da classa	
+	* Inicialização dos atributos dos atributos da classe
 	*/
 	this->code = 0;
 	this->priority = 0;
@@ -17,7 +17,7 @@ int Node::getPriority(){
 	return this->priority;
 }
 
-int Node::getCode(){
+char Node::getCode(){
 	return this->code;
 }
 
@@ -33,7 +33,11 @@ void Node::setPriority(int priority){
 	this->priority = priority;
 }
 
-void Node::setCode(int code){
+void Node::increasePriority(){
+	this->priority++;
+}
+
+void Node::setCode(char code){
 	this->code = code;
 }
 

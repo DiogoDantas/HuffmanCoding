@@ -13,7 +13,10 @@ public:
 	void build_tree();
 	void print_tree(Node* node);
 	Node* getRoot();
+	void generateTS();
+	void generateTable();
 private:
+	void searchLeaves(Node* node, unsigned long symbol, int size);
 	PQueue* queue;
 	Node* root;
 };

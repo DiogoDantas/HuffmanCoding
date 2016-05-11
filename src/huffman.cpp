@@ -1,4 +1,5 @@
 #include "huffman.h"
+#include <iostream>
 
 Huffman::Huffman(){
 
@@ -8,7 +9,9 @@ Huffman::Huffman(){
 Huffman::~Huffman(){}
 
 void Huffman::insert_queue(Node* node){
-	queue->insert(node);
+	//queue->insert(node);
+	if(node->getPriority() == 0) return;
+	queue->enqueue(node);
 }
 
 Node* Huffman::getRoot(){
@@ -17,6 +20,13 @@ Node* Huffman::getRoot(){
 }
 
 void Huffman::build_tree(){
+
+	if (queue->size() == 1)
+	{
+		root = queue->top();
+		return;
+	}
+
 
 	Node *left_node, *right_node, *new_node;
 
@@ -32,26 +42,63 @@ void Huffman::build_tree(){
 
 	queue->enqueue(new_node);
 
-	if (queue->size() == 1)
-	{
-		root = queue->top();
-		return;
-	}
-
 	Huffman::build_tree();
 }
 
 void Huffman::print_tree(Node* node)
 {
 	if(node != NULL){
-		std::cout<<node->getPriority();
-		if(node->getLeftChild() != NULL)
-			std::cout<<"(";
-		print_tree(node->getLeftChild());
-		print_tree(node->getRightChild());
-		if(node->getRightChild() != NULL)
-			std::cout<<")";
+		std::cout << node->getPriority();
+
+		if(node->getLeftChild() != NULL || node->getRightChild() != NULL){
+			std::cout << "[";
+
+			//if(node->getLeftChild() != NULL){
+				print_tree(node->getLeftChild());
+			//}
+			
+			std::cout << " ";
+
+			//if(node->getRightChild() != NULL){
+				print_tree(node->getRightChild());
+			//}
+
+			std::cout << "]";
+		}
 	}
 
 	return;
+}
+
+void Huffman::generateTable(){
+
+	searchLeaves(root, 0, 0);
+
+	// procurar folhas
+	// contar o caminho durante a busca
+	// criar a entrada na tabela
+}
+
+void Huffman::searchLeaves(Node* node, unsigned long symbol, int size){
+
+	if(node == NULL) return;
+	if(node->getLeftChild() == NULL && node->getRightChild() == NULL){
+		std::cout << node->getCode();
+		int n = size;
+		unsigned long filter = 1;
+		filter << n-1;
+		while(n-- > 0)
+			std::cout << (filter & symbol ? 1 : 0);
+
+	}
+	
+	symbol <<= 1;
+	
+	searchLeaves(node->getLeftChild(), symbol, size+1);
+
+	symbol |= 1;
+
+	searchLeaves(node->getRightChild(), symbol, size+1);
+
+	symbol >>= 1;
 }
