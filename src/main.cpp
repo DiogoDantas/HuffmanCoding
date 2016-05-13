@@ -9,7 +9,7 @@ int main(int argc, char const *argv[])
 	//n1->setPriority(10); n2->setPriority(50); n3->setPriority(30); n4->setPriority(5); n5->setPriority(1);
 
 	Node* array;
-	Loader loader("nada");
+	Loader loader("01 - crossing field.mp3");
 	loader.createNodes(&array);
 
 	Huffman* h1 = new Huffman();
@@ -25,6 +25,8 @@ int main(int argc, char const *argv[])
 	std::cout<<std::endl;
 	h1->generateTable();
 	std::cout<<std::endl;
+
+	std::cout << (double)h1->bits/1024/1024/8 << std::endl;
 	
 	return 0;
 }

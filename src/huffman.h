@@ -15,8 +15,10 @@ public:
 	Node* getRoot();
 	void generateTS();
 	void generateTable();
+
+	unsigned long bits = 0;
 private:
-	void searchLeaves(Node* node, unsigned long symbol, int size);
+	void searchLeaves(Node* node, unsigned long* symbol, int size);
 	PQueue* queue;
 	Node* root;
 };
