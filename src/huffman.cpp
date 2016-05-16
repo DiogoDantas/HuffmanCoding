@@ -52,17 +52,9 @@ void Huffman::print_tree(Node* node)
 
 		if(node->getLeftChild() != NULL || node->getRightChild() != NULL){
 			std::cout << "[";
-
-			//if(node->getLeftChild() != NULL){
-				print_tree(node->getLeftChild());
-			//}
-			
+			print_tree(node->getLeftChild());
 			std::cout << " ";
-
-			//if(node->getRightChild() != NULL){
-				print_tree(node->getRightChild());
-			//}
-
+			print_tree(node->getRightChild());
 			std::cout << "]";
 		}
 	}
@@ -90,9 +82,6 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size){
 	if(node->getLeftChild() == NULL && node->getRightChild() == NULL){
 		std::cout << (unsigned)(unsigned char)node->getCode() << '\t';
 
-		//symbol[0] = 5;
-		//size = 5;
-
 		bits += node->getPriority()*size;
 
 		int n = size;
@@ -102,28 +91,6 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size){
 		while(n-- > 0){
 			std::cout << ( (filter<<n%64) & symbol[n/64] ? 1 : 0);
 		}
-
- 		/*
-
-		filter <<= (n-1)%8;
-
-		while(n-- > 0){
-			std::cout << (filter & symbol[(n2-1)/8] ? 1 : 0);
-			filter >>= 1;
-		}
-
-		n2 -= 8;
-
-		if(n2 <= 0) return;
-		n = 8;
-		filter = 1;
-		filter <<= 7;
-
-		while(n-- > 0){
-			std::cout << (filter & symbol[(n2-1)/8] ? 1 : 0);
-			filter >>= 1;
-		}*/
-
 
 		std::cout << std::endl;
 		return;
