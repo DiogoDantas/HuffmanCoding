@@ -6,7 +6,7 @@
 int main(int argc, char const *argv[])
 {
 	Node* array;
-	Loader loader("Legend of Zelda, The - The Wind Waker.iso");
+	Loader loader("/home/pet/Downloads/ubuntu.iso");
 	loader.createNodes(&array);
 
 	double total = 0, potencial = 0;
@@ -25,14 +25,22 @@ int main(int argc, char const *argv[])
 		h1->insert_queue(array+i);
 	}
 
+	compact* code_table = new compact[256];
+
 	h1->build_tree();
 	//h1->print_tree(h1->getRoot());
 	//std::cout<<std::endl;
-	h1->generateTable();
+	h1->generateTable(code_table);
 	std::cout<<std::endl;
 
 	std::cout << (double)h1->bits/1024/1024/8 << " MB" << std::endl;
 	std::cout << potencial/1024/1024/8 << " MB" << std::endl;
+
+	for (int i = 0; i < 256; ++i)
+	{
+		std::cout<<(unsigned int)(unsigned char)code_table[i].code<<"\t";
+		std::cout<<code_table[i].priority<<std::endl;
+	}
 	
 	return 0;
 }

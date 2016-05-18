@@ -1,8 +1,14 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
-#include "huffman.h"
+#include <fstream>
 #include "pqueue.h"
+
+typedef struct 
+{
+		int priority;
+		char code;
+}compact;
 
 class Huffman
 {
@@ -14,11 +20,13 @@ public:
 	void print_tree(Node* node);
 	Node* getRoot();
 	void generateTS();
-	void generateTable();
+	void generateTable(compact* code_table);
+	void fileCompress(std::string sourceFile, std::string outputFile, compact* code_table);
 
 	unsigned long bits = 0;
+
 private:
-	void searchLeaves(Node* node, unsigned long* symbol, int size);
+	void searchLeaves(Node* node, unsigned long* symbol, int size, compact* code_table);
 	PQueue* queue;
 	Node* root;
 };

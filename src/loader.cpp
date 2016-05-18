@@ -4,6 +4,10 @@ Loader::Loader(){}
 
 Loader::Loader(std::string file){
 	in.open(file, std::fstream::in | std::fstream::binary);
+	if (!in.good()){
+		perror("open");
+		exit(1);
+	}
 }
 
 Loader::~Loader(){

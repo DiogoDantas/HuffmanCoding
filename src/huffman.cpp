@@ -62,25 +62,29 @@ void Huffman::print_tree(Node* node)
 	return;
 }
 
-void Huffman::generateTable(){
+void Huffman::generateTable(compact* code_table){
 
 	unsigned long aux[4];
 	aux[0] = 0UL;
 	aux[1] = 0UL;
 	aux[2] = 0UL;
 	aux[3] = 0UL;
-	searchLeaves(root, aux, 0);
+	searchLeaves(root, aux, 0, code_table);
 
 	// procurar folhas
 	// contar o caminho durante a busca
 	// criar a entrada na tabela
 }
 
-void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size){ 
+void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size, compact* code_table){ 
 
+	static int count = 0;
 	if(node == NULL) return;
 	if(node->getLeftChild() == NULL && node->getRightChild() == NULL){
-		std::cout << (unsigned)(unsigned char)node->getCode() << '\t';
+		//std::cout << (unsigned)(unsigned char)node->getCode() << '\t';
+		code_table[count].code = node->getCode();
+		code_table[count++].priority = node->getPriority();
+
 
 		bits += node->getPriority()*size;
 
@@ -106,11 +110,11 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size){
 	symbol[1] ^= symbol[0] & aux ? 1 : 0;
 	symbol[0] <<= 1;
 	
-	searchLeaves(node->getLeftChild(), symbol, size+1);
+	searchLeaves(node->getLeftChild(), symbol, size+1, code_table);
 
 	symbol[0] |= 1;
 
-	searchLeaves(node->getRightChild(), symbol, size+1);
+	searchLeaves(node->getRightChild(), symbol, size+1, code_table);
 
 	aux = 1;
 
@@ -121,4 +125,17 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size){
 	symbol[2] <<= 1;
 	symbol[2] ^= symbol[3] & aux ? (1UL<<63) : 0;
 	symbol[3] <<= 1;
+}
+
+void Huffman::fileCompress(std::string sourceFile, std::string outputFile, compact* code_table){
+	std::ifstream source_file;
+	std::ofstream output_file;
+
+	source_file.open(sourceFile, std::fstream::binary | std::fstream::in);
+	output_file.open(outputFile, std::fstream::binary | std::fstream::out);
+
+	if((!source_file.good()) || (!output_file.good())){
+		perror("open");
+		exit(1);
+	}
 }

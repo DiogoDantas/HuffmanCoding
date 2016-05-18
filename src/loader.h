@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <cerrno>
 #include "node.h"
 
 typedef union{
