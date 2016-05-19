@@ -4,6 +4,10 @@
 #include <fstream>
 #include "pqueue.h"
 
+#ifndef TABLE_SIZE
+#define TABLE_SIZE 256
+#endif
+
 typedef struct 
 {
 		int priority;

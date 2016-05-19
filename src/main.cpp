@@ -6,7 +6,7 @@
 int main(int argc, char const *argv[])
 {
 	Node* array;
-	Loader loader("/home/pet/Downloads/ubuntu.iso");
+	Loader loader("/home/diogodantas/Downloads/teste.pdf");
 	loader.createNodes(&array);
 
 	double total = 0, potencial = 0;
@@ -36,11 +36,8 @@ int main(int argc, char const *argv[])
 	std::cout << (double)h1->bits/1024/1024/8 << " MB" << std::endl;
 	std::cout << potencial/1024/1024/8 << " MB" << std::endl;
 
-	for (int i = 0; i < 256; ++i)
-	{
-		std::cout<<(unsigned int)(unsigned char)code_table[i].code<<"\t";
-		std::cout<<code_table[i].priority<<std::endl;
-	}
+
+		h1->fileCompress("/home/diogodantas/Downloads/teste.pdf", "/home/diogodantas/Testes/output.dc", code_table);
 	
 	return 0;
 }

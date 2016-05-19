@@ -131,6 +131,8 @@ void Huffman::fileCompress(std::string sourceFile, std::string outputFile, compa
 	std::ifstream source_file;
 	std::ofstream output_file;
 
+	unsigned char byte;
+
 	source_file.open(sourceFile, std::fstream::binary | std::fstream::in);
 	output_file.open(outputFile, std::fstream::binary | std::fstream::out);
 
@@ -138,4 +140,52 @@ void Huffman::fileCompress(std::string sourceFile, std::string outputFile, compa
 		perror("open");
 		exit(1);
 	}
+
+	//Escrita do tamanho do Header
+	int size_file = 0; // tamanho do arquivo
+	int size_table = 0;//tamanho da tabela
+	
+	output_file.put(0);// espaço onde o padding vai ser escrito
+	output_file << size_file; // local onde o tamanho do arquivo vai ser escrito
+	output_file << size_table; // local onde o tamanho da tabela vai ser escrito
+
+	// Escrita do Header
+	
+	int i = 0;
+	int size = TABLE_SIZE;
+	
+	for (i = 0; i < TABLE_SIZE; ++i)
+	{
+		if(code_table[i].code != 0) break; 
+	}
+
+	if (i == size){
+		std::cout<<"Arquivo vazio"<<std::endl;
+		exit(1);
+	}else{
+
+		size_table = size - i;
+
+		for (; i < size; ++i){
+			
+			output_file << code_table[i].code;
+			output_file << code_table[i].priority;
+		}
+
+	}
+
+	while(!source_file.eof())
+	{
+
+		byte = source_file.get();
+
+		char code = code_table[byte].code;
+		int priority = code_table[byte].priority;
+
+		//Escrita dos códigos comprimidos
+		
+		output_file << code;
+	}
+
+
 }
