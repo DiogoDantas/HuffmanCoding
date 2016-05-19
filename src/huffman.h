@@ -26,6 +26,7 @@ public:
 	void generateTS();
 	void generateTable(compact* code_table);
 	void fileCompress(std::string sourceFile, std::string outputFile, compact* code_table);
+	void fileDescompress(std::string sourceFile, std::string outputFile);
 
 	unsigned long bits = 0;
 

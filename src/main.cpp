@@ -33,11 +33,13 @@ int main(int argc, char const *argv[])
 	h1->generateTable(code_table);
 	std::cout<<std::endl;
 
-	std::cout << (double)h1->bits/1024/1024/8 << " MB" << std::endl;
-	std::cout << potencial/1024/1024/8 << " MB" << std::endl;
+	//std::cout << (double)h1->bits/1024/1024/8 << " MB" << std::endl;
+	//std::cout << potencial/1024/1024/8 << " MB" << std::endl;
 
 
 		h1->fileCompress("/home/diogodantas/Downloads/teste.pdf", "/home/diogodantas/Testes/output.dc", code_table);
-	
+		h1->fileDescompress("/home/diogodantas/Testes/output.dc", "/home/diogodantas/Testes/descomprimido.pdf");
+		
+
 	return 0;
 }
