@@ -1,35 +1,27 @@
 #include "node.h"
 
-Node::Node(){
-	/*
-	* Inicialização dos atributos dos atributos da classe
-	*/
-	this->code = 0;
-	this->priority = 0;
-	this->right_child = NULL;
-	this->left_child = NULL;
-
+Node::Node(): code(0), priority(0), right_child(nullptr), left_child(nullptr){
 }
 
 Node::~Node(){;} // Instrução Vazia
 
-int Node::getPriority(){
+int Node::getPriority() const {
 	return this->priority;
 }
 
-char Node::getCode(){
+char Node::getCode() const {
 	return this->code;
 }
 
-Node* Node::getRightChild(){
+Node* Node::getRightChild() const {
 	return this->right_child;
 }
 
-Node* Node::getLeftChild(){
+Node* Node::getLeftChild() const {
 	return this->left_child;
 }
 
-void Node::setPriority(int priority){
+void Node::setPriority(const int priority){
 	this->priority = priority;
 }
 
@@ -37,7 +29,7 @@ void Node::increasePriority(){
 	this->priority++;
 }
 
-void Node::setCode(char code){
+void Node::setCode(const char code){
 	this->code = code;
 }
 

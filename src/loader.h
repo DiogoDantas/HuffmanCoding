@@ -15,10 +15,10 @@ typedef union{
 class Loader{
 public:
 	Loader();
-	Loader(std::string file);
+	Loader(const std::string file);
 	~Loader();
 
-	void setFile(std::string file);
+	void setFile(const std::string file);
 	void createNodes(Node** array);
 private:
 	std::ifstream in;

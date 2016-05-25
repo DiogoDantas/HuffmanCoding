@@ -22,7 +22,7 @@ Node* PQueue::dequeue(){
 
 }
 
-Node* PQueue::top(){
+Node* PQueue::top() const{
 
 	return prt_queue.front();
 }
@@ -32,7 +32,7 @@ void PQueue::build_heap(){
 	heap_sort(prt_queue);
 }
 
-void PQueue::print_queue(){
+void PQueue::print_queue() const{
 	
 	for (int i = 0; i < prt_queue.size(); ++i)
 	{
@@ -42,7 +42,7 @@ void PQueue::print_queue(){
 	std::cout<<std::endl;
 }
 
-int PQueue::size(){
+int PQueue::size() const {
 	return static_cast<int>(prt_queue.size());
 }
 

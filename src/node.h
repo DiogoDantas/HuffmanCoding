@@ -10,15 +10,15 @@ class Node
 public:
 	Node();
 	~Node();
-	Node* getLeftChild();
-	Node* getRightChild();
-	int getPriority();
-	char getCode();
+	Node* getLeftChild() const;
+	Node* getRightChild() const;
+	int getPriority() const;
+	char getCode() const;
 	void setLeftChild(Node * left_child);
 	void setRightChild(Node * right_child);
-	void setPriority(int priority);
+	void setPriority(const int priority);
 	void increasePriority();
-	void setCode(char code);
+	void setCode(const char code);
 
 private:
 	int priority;

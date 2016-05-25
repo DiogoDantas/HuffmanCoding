@@ -12,10 +12,10 @@ public:
 	void insert(Node* node);
 	void enqueue(Node* node);
 	Node* dequeue();
-	Node* top();
+	Node* top() const;
 	void build_heap();
-	int size();
-	void print_queue();
+	int size() const ;
+	void print_queue() const;
 
 
 private:

@@ -1,20 +1,20 @@
 #include "huffman.h"
 #include <iostream>
 
-Huffman::Huffman(){
+Huffman::Huffman():root(nullptr){
 
 	this->queue = new PQueue();
-	this->root = NULL;
 }
+
 Huffman::~Huffman(){}
 
 void Huffman::insert_queue(Node* node){
-	//queue->insert(node);
 	if(node->getPriority() == 0) return;
 	queue->enqueue(node);
+
 }
 
-Node* Huffman::getRoot(){
+Node* Huffman::getRoot() const {
 
 	return this->root;
 }
@@ -45,8 +45,7 @@ void Huffman::build_tree(){
 	Huffman::build_tree();
 }
 
-void Huffman::print_tree(Node* node)
-{
+void Huffman::print_tree(Node* node) const {
 	if(node != NULL){
 		std::cout << node->getPriority();
 
@@ -76,7 +75,7 @@ void Huffman::generateTable(compact* code_table){
 	// criar a entrada na tabela
 }
 
-void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size, compact* code_table){ 
+void Huffman::searchLeaves(Node* node, unsigned long* symbol, const int size, compact* code_table){ 
 
 	static int count = 0;
 	if(node == NULL) return;
@@ -92,9 +91,9 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size, compact*
 		unsigned long filter = 1;
 
 
-		/*while(n-- > 0){
+		while(n-- > 0){
 			std::cout << ( (filter<<n%64) & symbol[n/64] ? 1 : 0);
-		}*/
+		}
 
 		std::cout << std::endl;
 		return;
@@ -127,7 +126,7 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, int size, compact*
 	symbol[3] <<= 1;
 }
 
-void Huffman::fileCompress(std::string sourceFile, std::string outputFile, compact* code_table){
+void Huffman::fileCompress(const std::string sourceFile, const std::string outputFile, compact* code_table){
 	std::ifstream source_file;
 	std::ofstream output_file;
 
@@ -251,7 +250,7 @@ void Huffman::fileCompress(std::string sourceFile, std::string outputFile, compa
 
 }
 
-void Huffman::fileDescompress(std::string sourceFile, std::string outputFile){
+void Huffman::fileDescompress(const std::string sourceFile, const std::string outputFile){
 
 	std::ifstream source_file;
 	std::ofstream output_file;

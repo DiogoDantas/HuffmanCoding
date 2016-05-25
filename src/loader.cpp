@@ -2,7 +2,7 @@
 
 Loader::Loader(){}
 
-Loader::Loader(std::string file){
+Loader::Loader(const std::string file){
 	in.open(file, std::fstream::in | std::fstream::binary);
 	if (!in.good()){
 		perror("open");
@@ -14,7 +14,7 @@ Loader::~Loader(){
 	in.close();
 }
 
-void Loader::setFile(std::string file){
+void Loader::setFile(const std::string file){
 	in.open(file, std::fstream::in | std::fstream::binary);
 }
 
