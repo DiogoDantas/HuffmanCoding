@@ -89,14 +89,19 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int
 
 		bits += node->getPriority()*size;
 
-		//int n = size;
-		//unsigned long mask = 1;
+		int n = size;
+		unsigned long mask = 1;
+		std::cout << (unsigned int)(unsigned char)node->getCode() << "\t";
 
-		//while(n-- > 0){
-		//	std::cout << ( (mask<<n%64) & symbol[n/64] ? 1 : 0);
-		//}
+		while(n-- > 0){
+			std::cout << ((mask<<n%64) & symbol[n/64] ? 1 : 0);
+		}
 
-		//std::cout << std::endl;
+		for(int i = 0; i < 10-size; i++) std::cout << " ";
+
+		std::cout << "\t" << node->getPriority() << "\t" << size;
+
+		std::cout << std::endl;
 		return;
 	}
 
@@ -153,7 +158,8 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 	}
 
 	unsigned int BLOCK_SIZE = 64;	// Usando long
-	unsigned char code;
+	unsigned int code;
+	char auxCode;
 	unsigned long outputBlock = 0UL;
 	unsigned long auxBlock = 0L;
 	unsigned int remainingBits;
@@ -161,10 +167,11 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 	unsigned long *symbol;
 
 	while(!source_file.eof()){
-		source_file >> code;									// Lê um byte do arquivo de entrada
+		source_file.read(&auxCode, sizeof(char));				// Lê um byte do arquivo de entrada
+		code = (unsigned int)(unsigned char)auxCode;
 
-		remainingBits = symbol_table[(unsigned int)code].size;	// Número de bits que ainda falta ser escrito na saída
-		symbol = symbol_table[(unsigned int)code].symbol;		// Símbolo a ser escrito na saída
+		remainingBits = symbol_table[code].size;	// Número de bits que ainda falta ser escrito na saída
+		symbol = symbol_table[code].symbol;		// Símbolo a ser escrito na saída
 
 		while(remainingBits > 0){								// Enquanto houverem bits para escrever...
 			int piece = (remainingBits-1)/BLOCK_SIZE;			// Primeiro pedaço (cada um dos 4 longs do símbolo) que possui bits válidos
@@ -175,7 +182,7 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 			auxBlock >>= BLOCK_SIZE-freeBits;						
 			outputBlock |= auxBlock;
 
-			if(pieceSize <= freeBits){							// Ajuste o número de bits livres e o número de  				
+			if(pieceSize < freeBits){							// Ajusta o número de bits livres e o número de  				
 				remainingBits -= pieceSize;						// bits que ainda falta ser lido
 				freeBits -= pieceSize;
 			}

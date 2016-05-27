@@ -28,7 +28,12 @@ void Loader::createNodes(Node** array){
 	Symbol s;
 	s.num = 0;
 
-	while(in.get(s.byte[0])){
+	//while(in.get(s.byte[0])){
+	//	(*array)[s.num].increasePriority();
+	//}
+
+	while(!in.eof()){
+		in.read(s.byte, sizeof(char));
 		(*array)[s.num].increasePriority();
 	}
 

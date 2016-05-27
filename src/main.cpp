@@ -34,10 +34,10 @@ int main(int argc, char const *argv[])
 	h1->generateTables();
 	std::cout<<std::endl;
 
-	h1->fileCompress("01 - crossing field.mp3", "saida.out");
+	h1->fileCompress("01 - crossing field.mp3", "saida");
 
-	std::cout << (double)h1->bits/1024/1024/8 << " MB" << std::endl;
-	std::cout << potencial/1024/1024/8 << " MB" << std::endl;
+	std::cout << (double)h1->bits/8 << " Bytes" << std::endl;
+	std::cout << potencial/8 << " Bytes" << std::endl;
 
 
 		//h1->fileCompress("/home/diogodantas/Downloads/teste.pdf", "/home/diogodantas/Testes/output.dc", code_table);
