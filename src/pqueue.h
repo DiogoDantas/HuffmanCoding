@@ -13,7 +13,7 @@ public:
 	void enqueue(Node* node);
 	Node* dequeue();
 	Node* top() const;
-	void build_heap();
+	void build_heap();	
 	int size() const ;
 	void print_queue() const;
 

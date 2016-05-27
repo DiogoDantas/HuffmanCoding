@@ -33,7 +33,7 @@ void Loader::createNodes(Node** array){
 	//}
 
 	while(!in.eof()){
-		in.read(s.byte, sizeof(char));
+		in.read((char*)s.byte, sizeof(unsigned char));
 		(*array)[s.num].increasePriority();
 	}
 

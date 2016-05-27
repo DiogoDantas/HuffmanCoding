@@ -35,6 +35,7 @@ public:
 	void fileDescompress(const std::string sourceFile, const std::string outputFile);
 
 	unsigned long bits = 0;
+	unsigned long symbols = 0;
 	// MUDAR!!
 	CompactTable* code_table;
 	ConsultationTable* symbol_table;

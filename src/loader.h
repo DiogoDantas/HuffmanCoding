@@ -8,7 +8,7 @@
 #include "node.h"
 
 typedef union{
-	char byte[4];
+	unsigned char byte[4];
 	unsigned int  num;
 } Symbol;
 

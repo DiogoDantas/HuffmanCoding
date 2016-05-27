@@ -82,12 +82,13 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int
 	if(node->getLeftChild() == NULL && node->getRightChild() == NULL){
 		code_table[count].code = node->getCode();
 		code_table[count++].priority = node->getPriority();
+
 		unsigned int pos = (unsigned int)node->getCode();
-		//symbol_table[pos].code = node->getCode();
 		symbol_table[pos].size = size;
 		std::copy(symbol, symbol+4, symbol_table[pos].symbol);
 
 		bits += node->getPriority()*size;
+		symbols += node->getPriority();
 
 		int n = size;
 		unsigned long mask = 1;
@@ -157,6 +158,21 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 		exit(1);
 	}
 
+	// Escreve a árvore
+	unsigned int count;
+	for(count = 0; count < 256; count++)
+		if(!code_table[count].priority)
+			break;
+
+	output_file.write((char*)&count, sizeof(unsigned int));
+
+	for(int i = 0; i < count; i++){
+		output_file.write((char*)&code_table[i], 5);
+	}
+
+	output_file.write((char*)&symbols, sizeof(unsigned long));
+
+	// Escreve o conteúdo da mensagem
 	unsigned int BLOCK_SIZE = 64;	// Usando long
 	unsigned int code;
 	char auxCode;
@@ -170,8 +186,8 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 		source_file.read(&auxCode, sizeof(char));				// Lê um byte do arquivo de entrada
 		code = (unsigned int)(unsigned char)auxCode;
 
-		remainingBits = symbol_table[code].size;	// Número de bits que ainda falta ser escrito na saída
-		symbol = symbol_table[code].symbol;		// Símbolo a ser escrito na saída
+		remainingBits = symbol_table[code].size;				// Número de bits que ainda falta ser escrito na saída
+		symbol = symbol_table[code].symbol;						// Símbolo a ser escrito na saída
 
 		while(remainingBits > 0){								// Enquanto houverem bits para escrever...
 			int piece = (remainingBits-1)/BLOCK_SIZE;			// Primeiro pedaço (cada um dos 4 longs do símbolo) que possui bits válidos
@@ -189,14 +205,17 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 			else{
 				remainingBits -= freeBits;
 				freeBits = BLOCK_SIZE;
-				output_file.write((char*)&outputBlock, sizeof(unsigned long));;
+				output_file.write((char*)&outputBlock, sizeof(unsigned long));
 				outputBlock = 0UL;
 			}
-
 		}
-
 	}
 
+	if(freeBits > 0){
+		outputBlock |= (0UL - 1UL) >> 64-freeBits;
+		output_file.write((char*)&outputBlock, sizeof(unsigned long));
+	}
+	
 	output_file.close();
 	source_file.close();
 
@@ -207,20 +226,6 @@ void Huffman::fileDescompress(const std::string sourceFile, const std::string ou
 	std::ifstream source_file;
 	std::ofstream output_file;
 
-	CompactTable* code_table = new CompactTable[256];
-
-	unsigned char byte;
-	unsigned char byte_aux = 1<<7; // serve pra fazer o & binário com os bytes lidos pra ler bit a bit
-
-	int padding;
-	int i;
-	int size_table;
-	int size_file;
-	int cursor = 0;
-
-	unsigned char code;
-	int priority;
-
 	source_file.open(sourceFile, std::fstream::binary | std::fstream::in);
 	output_file.open(outputFile, std::fstream::binary | std::fstream::out);
 
@@ -229,4 +234,50 @@ void Huffman::fileDescompress(const std::string sourceFile, const std::string ou
 		exit(1);
 	}
 
+	// Ler e construir árvore
+	unsigned int count;
+	source_file.read((char*)&count, sizeof(unsigned int));
+
+	Node* tmp;
+
+	for(int i = 0; i < count; i++){
+		source_file.read((char*)&code_table[i], 5);
+		tmp = new Node;
+		tmp->setPriority(code_table[i].priority);
+		tmp->setCode(code_table[i].code);
+		tmp->setLeftChild(nullptr);
+		tmp->setRightChild(nullptr);
+	}
+
+	build_tree();
+
+	source_file.read((char*)&symbols, sizeof(unsigned long));
+
+	Node *aux;
+	unsigned long mask = 1UL << 63;
+	unsigned long block;
+
+	while(symbols-- > 0){
+		aux = root;
+		while(aux->getLeftChild() && aux->getRightChild()){
+
+			if(!mask){
+				source_file.read((char*)&block, sizeof(unsigned long));
+				mask = 1UL << 63;
+			}
+
+			if(mask & block)
+				aux = aux->getRightChild();
+			else
+				aux = aux->getLeftChild();
+
+			mask >> 1;
+		}
+		
+		unsigned char wrt = aux->getCode();
+		output_file.write((char*)&wrt, sizeof(unsigned char));	
+	}
+
+	output_file.close();
+	source_file.close();
 }

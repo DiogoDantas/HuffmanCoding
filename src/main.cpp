@@ -6,7 +6,7 @@
 int main(int argc, char const *argv[])
 {
 	Node* array;
-	Loader loader("01 - crossing field.mp3");
+	Loader loader("entrada3");
 	loader.createNodes(&array);
 
 	double total = 0, potencial = 0;
@@ -34,7 +34,8 @@ int main(int argc, char const *argv[])
 	h1->generateTables();
 	std::cout<<std::endl;
 
-	h1->fileCompress("01 - crossing field.mp3", "saida");
+	h1->fileCompress("entrada3", "compressed");
+	h1->fileDescompress("compressed", "descompressed");
 
 	std::cout << (double)h1->bits/8 << " Bytes" << std::endl;
 	std::cout << potencial/8 << " Bytes" << std::endl;
