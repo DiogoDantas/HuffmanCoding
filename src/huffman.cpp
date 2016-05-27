@@ -152,11 +152,12 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 		exit(1);
 	}
 
+	unsigned int BLOCK_SIZE = 64;	// Usando long
 	unsigned char code;
 	unsigned long outputBlock = 0UL;
 	unsigned long auxBlock = 0L;
 	unsigned int remainingBits;
-	unsigned int freeBits = 64;
+	unsigned int freeBits = BLOCK_SIZE;
 	unsigned long *symbol;
 
 	while(!source_file.eof()){
@@ -166,12 +167,12 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 		symbol = symbol_table[(unsigned int)code].symbol;		// Símbolo a ser escrito na saída
 
 		while(remainingBits > 0){								// Enquanto houverem bits para escrever...
-			int piece = (remainingBits-1)/64;					// Primeiro pedaço (cada um dos 4 longs do símbolo) que possui bits válidos
-			int pieceSize = (remainingBits-1)%64+1;				// Tamanho do primeiro Long válido
+			int piece = (remainingBits-1)/BLOCK_SIZE;			// Primeiro pedaço (cada um dos 4 longs do símbolo) que possui bits válidos
+			int pieceSize = (remainingBits-1)%BLOCK_SIZE+1;		// Tamanho do primeiro Long válido
 
 			auxBlock = symbol[piece];							// Copie este pedaço para auxBlock e posicione os bits
-			auxBlock <<= 64-pieceSize;							// no local correto para escrever no bloco de saída
-			auxBlock >>= 64-freeBits;						
+			auxBlock <<= BLOCK_SIZE-pieceSize;					// no local correto para escrever no bloco de saída
+			auxBlock >>= BLOCK_SIZE-freeBits;						
 			outputBlock |= auxBlock;
 
 			if(pieceSize <= freeBits){							// Ajuste o número de bits livres e o número de  				
@@ -180,8 +181,8 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 			}
 			else{
 				remainingBits -= freeBits;
-				freeBits = 64;
-				output_file << outputBlock;
+				freeBits = BLOCK_SIZE;
+				output_file.write((char*)&outputBlock, sizeof(unsigned long));;
 				outputBlock = 0UL;
 			}
 
