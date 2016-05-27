@@ -22,12 +22,11 @@ void Loader::createNodes(Node** array){
 	*array = new Node[256];
 
 	for(int i = 0; i < 256; i++){
-		(*array)[i].setCode((char)i);
+		(*array)[i].setCode((unsigned char)i);
 	}
 
 	Symbol s;
 	s.num = 0;
-
 
 	while(in.get(s.byte[0])){
 		(*array)[s.num].increasePriority();

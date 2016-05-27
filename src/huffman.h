@@ -10,9 +10,15 @@
 
 typedef struct 
 {
-		int priority;
-		char code;
-}compact;
+	unsigned int priority;
+	unsigned char code;
+} CompactTable;
+
+typedef struct 
+{
+	unsigned long symbol[4];
+	unsigned int size;
+} ConsultationTable;
 
 class Huffman
 {
@@ -24,14 +30,17 @@ public:
 	void print_tree(Node* node) const;
 	Node* getRoot() const;
 	void generateTS();
-	void generateTable(compact* code_table);
-	void fileCompress(const std::string sourceFile, const std::string outputFile, compact* code_table);
+	void generateTables();
+	void fileCompress(const std::string sourceFile, const std::string outputFile);
 	void fileDescompress(const std::string sourceFile, const std::string outputFile);
 
 	unsigned long bits = 0;
-
+	// MUDAR!!
+	CompactTable* code_table;
+	ConsultationTable* symbol_table;
 private:
-	void searchLeaves(Node* node, unsigned long* symbol, const int size, compact* code_table);
+	void searchLeaves(Node* node, unsigned long* symbol, const unsigned int size);
+	
 	PQueue* queue;
 	Node* root;
 };

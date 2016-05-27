@@ -1,4 +1,5 @@
 #include "huffman.h"
+#include <algorithm>
 #include <iostream>
 
 Huffman::Huffman():root(nullptr){
@@ -61,43 +62,56 @@ void Huffman::print_tree(Node* node) const {
 	return;
 }
 
-void Huffman::generateTable(compact* code_table){
+void Huffman::generateTables(){
 
-	unsigned long aux[4];
-	aux[0] = 0UL;
-	aux[1] = 0UL;
-	aux[2] = 0UL;
-	aux[3] = 0UL;
-	searchLeaves(root, aux, 0, code_table);
-
-	// procurar folhas
-	// contar o caminho durante a busca
-	// criar a entrada na tabela
+	unsigned long aux[4] = {0UL, 0UL, 0UL, 0UL};
+	searchLeaves(root, aux, 0U);
 }
 
-void Huffman::searchLeaves(Node* node, unsigned long* symbol, const int size, compact* code_table){ 
+void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int size){ 
+
+	/**
+		A função busca recursivamente por folhas. Quando encontra 
+		uma folha, usa o símbolo gerado para criar uma entrada na
+		tabela de símbolos.
+
+	*/
 
 	static int count = 0;
 	if(node == NULL) return;
 	if(node->getLeftChild() == NULL && node->getRightChild() == NULL){
-		//std::cout << (unsigned)(unsigned char)node->getCode() << '\t';
 		code_table[count].code = node->getCode();
 		code_table[count++].priority = node->getPriority();
-
+		unsigned int pos = (unsigned int)node->getCode();
+		//symbol_table[pos].code = node->getCode();
+		symbol_table[pos].size = size;
+		std::copy(symbol, symbol+4, symbol_table[pos].symbol);
 
 		bits += node->getPriority()*size;
 
-		int n = size;
-		unsigned long filter = 1;
+		//int n = size;
+		//unsigned long mask = 1;
 
+		//while(n-- > 0){
+		//	std::cout << ( (mask<<n%64) & symbol[n/64] ? 1 : 0);
+		//}
 
-		while(n-- > 0){
-			std::cout << ( (filter<<n%64) & symbol[n/64] ? 1 : 0);
-		}
-
-		std::cout << std::endl;
+		//std::cout << std::endl;
 		return;
 	}
+
+	/**
+		Esta parte final da função altera o símbolo a ser gerado 
+		de maneira adequada e chama recursivamente a função sobre 
+		os nós filhos. Na prática, a função move o código todo 1 bit 
+		para a esquerda, gerando um bit 0 extra à direita. Então, 
+		chama o filho da esquerda, passando o novo código. Ao retornar 
+		deste filho, altera o último bit para que seja 1 e então 
+		repassa para o filho da direita. Quando este último retorna, 
+		o bit extra é finalmente apagado através de uma movimentação 
+		de um bit para a direita, o que faz a função devolver o mesmo 
+		símbolo que recebeu.
+	*/
 
 	unsigned long aux = 1UL << 63;
 	
@@ -109,11 +123,11 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const int size, co
 	symbol[1] ^= symbol[0] & aux ? 1 : 0;
 	symbol[0] <<= 1;
 	
-	searchLeaves(node->getLeftChild(), symbol, size+1, code_table);
+	searchLeaves(node->getLeftChild(), symbol, size+1);
 
 	symbol[0] |= 1;
 
-	searchLeaves(node->getRightChild(), symbol, size+1, code_table);
+	searchLeaves(node->getRightChild(), symbol, size+1);
 
 	aux = 1;
 
@@ -126,16 +140,9 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const int size, co
 	symbol[3] <<= 1;
 }
 
-void Huffman::fileCompress(const std::string sourceFile, const std::string outputFile, compact* code_table){
+void Huffman::fileCompress(const std::string sourceFile, const std::string outputFile){
 	std::ifstream source_file;
 	std::ofstream output_file;
-
-	unsigned char byte, buffer, $auxiliar;
-	int aux, padding;
-	char* tmp;
-
-	char code;
-	int priority;
 
 	source_file.open(sourceFile, std::fstream::binary | std::fstream::in);
 	output_file.open(outputFile, std::fstream::binary | std::fstream::out);
@@ -145,108 +152,45 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 		exit(1);
 	}
 
-	//Escrita do tamanho do Header
-	int size_file = 0; // tamanho do arquivo
-	int size_table = 0;//tamanho da tabela
-	
-	output_file.put(0);// espaço onde o padding vai ser escrito
-	output_file << size_file; // local onde o tamanho do arquivo vai ser escrito
-	output_file << size_table; // local onde o tamanho da tabela vai ser escrito
+	unsigned char code;
+	unsigned long outputBlock = 0UL;
+	unsigned long auxBlock = 0L;
+	unsigned int remainingBits;
+	unsigned int freeBits = 64;
+	unsigned long *symbol;
 
-	// Escrita do Header
-	
-	int i = 0;
-	int size = TABLE_SIZE;
-	
-	for (i = 0; i < TABLE_SIZE; ++i)
-	{
-		if(code_table[i].code != 0) break; 
+	while(!source_file.eof()){
+		source_file >> code;									// Lê um byte do arquivo de entrada
+
+		remainingBits = symbol_table[(unsigned int)code].size;	// Número de bits que ainda falta ser escrito na saída
+		symbol = symbol_table[(unsigned int)code].symbol;		// Símbolo a ser escrito na saída
+
+		while(remainingBits > 0){								// Enquanto houverem bits para escrever...
+			int piece = (remainingBits-1)/64;					// Primeiro pedaço (cada um dos 4 longs do símbolo) que possui bits válidos
+			int pieceSize = (remainingBits-1)%64+1;				// Tamanho do primeiro Long válido
+
+			auxBlock = symbol[piece];							// Copie este pedaço para auxBlock e posicione os bits
+			auxBlock <<= 64-pieceSize;							// no local correto para escrever no bloco de saída
+			auxBlock >>= 64-freeBits;						
+			outputBlock |= auxBlock;
+
+			if(pieceSize <= freeBits){							// Ajuste o número de bits livres e o número de  				
+				remainingBits -= pieceSize;						// bits que ainda falta ser lido
+				freeBits -= pieceSize;
+			}
+			else{
+				remainingBits -= freeBits;
+				freeBits = 64;
+				output_file << outputBlock;
+				outputBlock = 0UL;
+			}
+
+		}
+
 	}
 
-	if (i == size){
-		std::cout<<"Arquivo vazio"<<std::endl;
-		exit(1);
-	}else{
-
-		size_table = size - i;
-
-		for (; i < size; ++i){
-			
-			output_file << code_table[i].code;
-			output_file << code_table[i].priority;
-		}
-
-	}
-
-
-	buffer = '\0';
-	aux = 7;
-
-			// $auxiliar fica 00000001
-	$auxiliar =  '\0';
-	$auxiliar = ~$auxiliar;
-	$auxiliar = $auxiliar << 1;
-	$auxiliar = ~$auxiliar;
-
-
-
-	//Escrita dos códigos comprimidos
-	while(!source_file.eof())
-	{
-
-		byte = source_file.get();
-
-		code = code_table[byte].code;
-		priority = code_table[byte].priority;
-
-		tmp = &code;
-
-		//Escrita dos códigos comprimidos
-		
-		//output_file << code;
-		
-
-		for (i = 0; tmp[i] != '\0'; ++i, aux-- )
-		{
-			if(aux < 0)
-			{
-				output_file.put(buffer);
-				size_file++;
-				buffer = '\0';
-				aux = 7;
-
-			}
-
-
-			if(tmp[i] == '1'){
-					buffer = (($auxiliar << aux) | buffer); // adicionando o byte a sua posição do byte. Se code[i] for 1, é só decrementar o aux, pois já estará um lá.
-				}
-			}
-
-		}
-
-		if(aux == 7){
-			padding = 0;
-		}else{
-			padding = aux + 1;
-			while(aux >= 0){ //padding
-				buffer = (($auxiliar << aux) | buffer);
-				aux--;
-			}
-
-			output_file.put(buffer);
-			size_file++;
-		}
-
-		std::cout<<size_file<<std::endl;
-
-		output_file.seekp(0,std::ios_base::beg);
-		output_file.put((unsigned char)padding);
-		output_file << size_file;
-		output_file << size_table;
-
-		output_file.close();
-		source_file.close();
+	output_file.close();
+	source_file.close();
 
 }
 
@@ -255,7 +199,7 @@ void Huffman::fileDescompress(const std::string sourceFile, const std::string ou
 	std::ifstream source_file;
 	std::ofstream output_file;
 
-	compact* code_table = new compact[256];
+	CompactTable* code_table = new CompactTable[256];
 
 	unsigned char byte;
 	unsigned char byte_aux = 1<<7; // serve pra fazer o & binário com os bytes lidos pra ler bit a bit
@@ -266,7 +210,7 @@ void Huffman::fileDescompress(const std::string sourceFile, const std::string ou
 	int size_file;
 	int cursor = 0;
 
-	char code;
+	unsigned char code;
 	int priority;
 
 	source_file.open(sourceFile, std::fstream::binary | std::fstream::in);

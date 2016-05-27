@@ -21,7 +21,7 @@ public:
 private:
 	void max_heapify( std::vector<Node*> &lista, const int pos, const int n );
 	void heap_sort( std::vector<Node*> &lista );
-	void insertion_sort(std::vector<Node*>&lista);
+	void insertion_sort(std::vector<Node*> &lista);
 	std::vector<Node*> prt_queue;
 };
 #endif // P_QUEUE_H

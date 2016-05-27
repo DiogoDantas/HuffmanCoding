@@ -5,6 +5,7 @@ PQueue::PQueue(){}
 PQueue::~PQueue(){}
 
 void PQueue::insert(Node* node){
+
 	prt_queue.push_back(node);
 }
 
@@ -19,7 +20,6 @@ Node* PQueue::dequeue(){
 	Node* tmp = prt_queue.back();
 	prt_queue.pop_back();
 	return tmp;
-
 }
 
 Node* PQueue::top() const{
@@ -43,6 +43,7 @@ void PQueue::print_queue() const{
 }
 
 int PQueue::size() const {
+
 	return static_cast<int>(prt_queue.size());
 }
 
@@ -62,7 +63,6 @@ void PQueue::insertion_sort(std::vector<Node*> &list)
 
 		list[j+1] = tmp;
 	}
-
 }
 
 void PQueue::max_heapify( std::vector<Node*> &lista, const int pos, const int n ){
@@ -99,5 +99,4 @@ void PQueue::heap_sort( std::vector<Node*> &lista ){
        std::iter_swap( elem, lista.begin() );
        max_heapify( lista, 0, --tam );
     }
-
 }

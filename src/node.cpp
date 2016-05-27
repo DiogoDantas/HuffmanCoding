@@ -9,7 +9,7 @@ int Node::getPriority() const {
 	return this->priority;
 }
 
-char Node::getCode() const {
+unsigned char Node::getCode() const {
 	return this->code;
 }
 
@@ -29,7 +29,7 @@ void Node::increasePriority(){
 	this->priority++;
 }
 
-void Node::setCode(const char code){
+void Node::setCode(const unsigned char code){
 	this->code = code;
 }
 

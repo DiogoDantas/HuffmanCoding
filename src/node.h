@@ -13,16 +13,16 @@ public:
 	Node* getLeftChild() const;
 	Node* getRightChild() const;
 	int getPriority() const;
-	char getCode() const;
+	unsigned char getCode() const;
 	void setLeftChild(Node * left_child);
 	void setRightChild(Node * right_child);
 	void setPriority(const int priority);
 	void increasePriority();
-	void setCode(const char code);
+	void setCode(const unsigned char code);
 
 private:
 	int priority;
-	char code;
+	unsigned char code;
 	Node * left_child;
 	Node * right_child;
 	

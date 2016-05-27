@@ -6,7 +6,7 @@
 int main(int argc, char const *argv[])
 {
 	Node* array;
-	Loader loader("/home/diogodantas/Downloads/teste.pdf");
+	Loader loader("01 - crossing field.mp3");
 	loader.createNodes(&array);
 
 	double total = 0, potencial = 0;
@@ -25,13 +25,16 @@ int main(int argc, char const *argv[])
 		h1->insert_queue(array+i);
 	}
 
-	compact* code_table = new compact[256];
+	CompactTable* code_table = new CompactTable[256];
+	ConsultationTable* consultation_table = new ConsultationTable[256];
+	h1->code_table = code_table;
+	h1->symbol_table = consultation_table;
 
 	h1->build_tree();
-	//h1->print_tree(h1->getRoot());
-	//std::cout<<std::endl;
-	h1->generateTable(code_table);
+	h1->generateTables();
 	std::cout<<std::endl;
+
+	h1->fileCompress("01 - crossing field.mp3", "saida.out");
 
 	std::cout << (double)h1->bits/1024/1024/8 << " MB" << std::endl;
 	std::cout << potencial/1024/1024/8 << " MB" << std::endl;

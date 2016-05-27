@@ -9,7 +9,7 @@
 
 typedef union{
 	char byte[4];
-	int  num;
+	unsigned int  num;
 } Symbol;
 
 class Loader{
