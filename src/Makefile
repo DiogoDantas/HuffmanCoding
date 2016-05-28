@@ -5,7 +5,7 @@ FLAGS = -std=c++11 -O2 -g3
 
 Huffman: main.o node.o pqueue.o huffman.o loader.o
 	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp loader.cpp $(FLAGS) -o Huffman
-	./Huffman
+	./Huffman $(ARGS)
 
 debug:
 	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp loader.cpp $(FLAGS) -o Huffman

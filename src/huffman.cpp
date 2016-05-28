@@ -64,11 +64,11 @@ void Huffman::print_tree(Node* node) const {
 
 void Huffman::generateTables(){
 
-	unsigned long aux[4] = {0UL, 0UL, 0UL, 0UL};
+	Byte aux[16] = {0};
 	searchLeaves(root, aux, 0U);
 }
 
-void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int size){ 
+void Huffman::searchLeaves(Node* node, Byte* symbol, const unsigned int size){ 
 
 	/**
 		A função busca recursivamente por folhas. Quando encontra 
@@ -85,13 +85,13 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int
 
 		unsigned int pos = (unsigned int)node->getCode();
 		symbol_table[pos].size = size;
-		std::copy(symbol, symbol+4, symbol_table[pos].symbol);
+		std::copy(symbol, symbol+16, symbol_table[pos].symbol);
 
 		bits += node->getPriority()*size;
 		symbols += node->getPriority();
 
 		int n = size;
-		unsigned long mask = 1;
+		unsigned char mask = 1;
 		std::cout << (unsigned int)(unsigned char)node->getCode() << "\t";
 
 		while(n-- > 0){
@@ -119,8 +119,16 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int
 		símbolo que recebeu.
 	*/
 
-	unsigned long aux = 1UL << 63;
+	Byte aux = (Byte)1 << 7;
+
+	for(int i = 15; i > 0; i--){
+		symbol[i] <<= 1;
+		symbol[i] ^= symbol[i-1] & aux ? 1 : 0;
+	}
+	symbol[0] <<= 1;
 	
+	
+/* LONG ---------------------------------
 	symbol[3] <<= 1;
 	symbol[3] ^= symbol[2] & aux ? 1 : 0;
 	symbol[2] <<= 1;
@@ -128,6 +136,7 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int
 	symbol[1] <<= 1;
 	symbol[1] ^= symbol[0] & aux ? 1 : 0;
 	symbol[0] <<= 1;
+// LONG --------------------------------*/
 	
 	searchLeaves(node->getLeftChild(), symbol, size+1);
 
@@ -135,8 +144,15 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int
 
 	searchLeaves(node->getRightChild(), symbol, size+1);
 
-	aux = 1;
+	aux = 1U;
 
+	for(int i = 0; i < 15; i++){
+		symbol[i] >>= 1;
+		symbol[i] ^= symbol[i+1] & aux ? ((Byte)1<<7) : 0;
+	}
+	symbol[3] <<= 1;
+
+/* LONG -----------------------------------
 	symbol[0] >>= 1;
 	symbol[0] ^= symbol[1] & aux ? (1UL<<63) : 0;
 	symbol[1] <<= 1;
@@ -144,6 +160,7 @@ void Huffman::searchLeaves(Node* node, unsigned long* symbol, const unsigned int
 	symbol[2] <<= 1;
 	symbol[2] ^= symbol[3] & aux ? (1UL<<63) : 0;
 	symbol[3] <<= 1;
+// LONG ------------------------------------*/
 }
 
 void Huffman::fileCompress(const std::string sourceFile, const std::string outputFile){
@@ -173,14 +190,14 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 	output_file.write((char*)&symbols, sizeof(unsigned long));
 
 	// Escreve o conteúdo da mensagem
-	unsigned int BLOCK_SIZE = 64;	// Usando long
+	unsigned int BLOCK_SIZE = 8;	// Usando long
 	unsigned int code;
 	char auxCode;
-	unsigned long outputBlock = 0UL;
-	unsigned long auxBlock = 0L;
+	Byte outputBlock = 0;
+	Byte auxBlock = 0;
 	unsigned int remainingBits;
 	unsigned int freeBits = BLOCK_SIZE;
-	unsigned long *symbol;
+	Byte *symbol;
 
 	while(!source_file.eof()){
 		source_file.read(&auxCode, sizeof(char));				// Lê um byte do arquivo de entrada
@@ -205,15 +222,15 @@ void Huffman::fileCompress(const std::string sourceFile, const std::string outpu
 			else{
 				remainingBits -= freeBits;
 				freeBits = BLOCK_SIZE;
-				output_file.write((char*)&outputBlock, sizeof(unsigned long));
-				outputBlock = 0UL;
+				output_file.write((char*)&outputBlock, sizeof(Byte));
+				outputBlock = 0;
 			}
 		}
 	}
 
 	if(freeBits > 0){
-		outputBlock |= (0UL - 1UL) >> 64-freeBits;
-		output_file.write((char*)&outputBlock, sizeof(unsigned long));
+		outputBlock |= ((Byte)0 - (Byte)1) >> BLOCK_SIZE-freeBits;
+		output_file.write((char*)&outputBlock, sizeof(Byte));
 	}
 	
 	output_file.close();
@@ -254,16 +271,16 @@ void Huffman::fileDescompress(const std::string sourceFile, const std::string ou
 	source_file.read((char*)&symbols, sizeof(unsigned long));
 
 	Node *aux;
-	unsigned long mask = 1UL << 63;
-	unsigned long block;
+	Byte mask = 0;
+	Byte block;
 
 	while(symbols-- > 0){
 		aux = root;
 		while(aux->getLeftChild() && aux->getRightChild()){
 
 			if(!mask){
-				source_file.read((char*)&block, sizeof(unsigned long));
-				mask = 1UL << 63;
+				source_file.read((char*)&block, sizeof(Byte));
+				mask = (Byte)1 << 7;
 			}
 
 			if(mask & block)
@@ -271,7 +288,7 @@ void Huffman::fileDescompress(const std::string sourceFile, const std::string ou
 			else
 				aux = aux->getLeftChild();
 
-			mask >> 1;
+			mask >>= 1;
 		}
 		
 		unsigned char wrt = aux->getCode();

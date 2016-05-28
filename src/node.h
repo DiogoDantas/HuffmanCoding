@@ -18,6 +18,7 @@ public:
 	void setRightChild(Node * right_child);
 	void setPriority(const int priority);
 	void increasePriority();
+	void decreasePriority();
 	void setCode(const unsigned char code);
 
 private:

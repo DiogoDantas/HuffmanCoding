@@ -29,6 +29,10 @@ void Node::increasePriority(){
 	this->priority++;
 }
 
+void Node::decreasePriority(){
+	this->priority--;
+}
+
 void Node::setCode(const unsigned char code){
 	this->code = code;
 }

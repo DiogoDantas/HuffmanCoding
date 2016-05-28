@@ -6,7 +6,7 @@
 int main(int argc, char const *argv[])
 {
 	Node* array;
-	Loader loader("entrada3");
+	Loader loader("01 - crossing field.mp3");
 	loader.createNodes(&array);
 
 	double total = 0, potencial = 0;
@@ -34,16 +34,11 @@ int main(int argc, char const *argv[])
 	h1->generateTables();
 	std::cout<<std::endl;
 
-	h1->fileCompress("entrada3", "compressed");
-	h1->fileDescompress("compressed", "descompressed");
+	h1->fileCompress("01 - crossing field.mp3", "compressed");
+	h1->fileDescompress("compressed", "01 - crossing field2.mp3");
 
-	std::cout << (double)h1->bits/8 << " Bytes" << std::endl;
-	std::cout << potencial/8 << " Bytes" << std::endl;
-
-
-		//h1->fileCompress("/home/diogodantas/Downloads/teste.pdf", "/home/diogodantas/Testes/output.dc", code_table);
-		//h1->fileDescompress("/home/diogodantas/Testes/output.dc", "/home/diogodantas/Testes/descomprimido.pdf");
-		
+	std::cout << "Esperado: \t" << (double)h1->bits/8 << " Bytes" << std::endl;
+	std::cout << "Máximo possível: " << potencial/8 << " Bytes" << std::endl;		
 
 	return 0;
 }

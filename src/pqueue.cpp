@@ -27,10 +27,10 @@ Node* PQueue::top() const{
 	return prt_queue.front();
 }
 
-void PQueue::build_heap(){
+//void PQueue::build_heap(){
 
-	heap_sort(prt_queue);
-}
+	//heap_sort(prt_queue);
+//}
 
 void PQueue::print_queue() const{
 	
@@ -65,7 +65,7 @@ void PQueue::insertion_sort(std::vector<Node*> &list)
 	}
 }
 
-void PQueue::max_heapify( std::vector<Node*> &lista, const int pos, const int n ){
+/*void PQueue::max_heapify( std::vector<Node*> &lista, const int pos, const int n ){
 	int max = 2 * pos + 1;
 
     if( max < n )
@@ -99,4 +99,4 @@ void PQueue::heap_sort( std::vector<Node*> &lista ){
        std::iter_swap( elem, lista.begin() );
        max_heapify( lista, 0, --tam );
     }
-}
+}*/

@@ -4,9 +4,7 @@
 #include <fstream>
 #include "pqueue.h"
 
-#ifndef TABLE_SIZE
-#define TABLE_SIZE 256
-#endif
+typedef unsigned char Byte;
 
 typedef struct 
 {
@@ -16,7 +14,7 @@ typedef struct
 
 typedef struct 
 {
-	unsigned long symbol[4];
+	Byte symbol[16];
 	unsigned int size;
 } ConsultationTable;
 
@@ -40,7 +38,7 @@ public:
 	CompactTable* code_table;
 	ConsultationTable* symbol_table;
 private:
-	void searchLeaves(Node* node, unsigned long* symbol, const unsigned int size);
+	void searchLeaves(Node* node, Byte* symbol, const unsigned int size);
 	
 	PQueue* queue;
 	Node* root;
