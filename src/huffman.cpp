@@ -92,7 +92,7 @@ void Huffman::searchLeaves(Node* node, Byte* symbol, const unsigned int size){
 
 		int n = size;
 		unsigned char mask = 1;
-		std::cout << (unsigned int)(unsigned char)node->getCode() << "\t";
+		/*std::cout << (unsigned int)(unsigned char)node->getCode() << "\t";
 
 		while(n-- > 0){
 			std::cout << ((mask<<n%64) & symbol[n/64] ? 1 : 0);
@@ -103,7 +103,7 @@ void Huffman::searchLeaves(Node* node, Byte* symbol, const unsigned int size){
 		std::cout << "\t" << node->getPriority() << "\t" << size;
 
 		std::cout << std::endl;
-		return;
+		return;*/
 	}
 
 	/**
