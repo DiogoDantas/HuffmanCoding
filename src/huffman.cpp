@@ -4,35 +4,26 @@
 //--------------------------------- HUFFMAN ------------------------------------------
 //------------------------------------------------------------------------------------
 
-Huffman::Huffman(std::string infile, std::string outfile):
-	input_size(0),
-	output_size(0),
-	compression_rate(0)
-{
+Huffman::Huffman(std::string infile, std::string outfile){
+	if(!outfile.compare("")){
+		outfile = infile;
+
+		if(outfile.rfind(".") != std::string::npos)
+			outfile = outfile.substr(0, outfile.rfind("."));
+		
+		outfile += ".huf";
+	}
+
 	input = new BitStream(infile, 1);
 	output = new BitStream(outfile, 0);
 	symbolsCount = input->size();
-
-	Node *array;
-	createNodes(&array);
-
-	PQueue *queue = new PQueue();
-	for(int i = 0; i < 256; i++){
-		queue->enqueue(array+i);
-	}
-
-	tree = new HuffmanTree(queue);
-
-	code_table = new CompactTable[256];
-	symbol_table = new ConsultationTable[256];
-
-	tree->generateTables(code_table, symbol_table);
 }
 
 Huffman::~Huffman(){
 	delete input;
 	delete output;
-	delete tree;
+	if(tree)
+		delete tree;
 }
 
 void Huffman::createNodes(Node** array){
@@ -44,17 +35,32 @@ void Huffman::createNodes(Node** array){
 
 	Byte s;
 
-	while(!input->eof()){
-		input->readByte(&s);
+	while(!input->readByte(&s)){
 		(*array)[(unsigned int)s].increasePriority();
 	}
-
-	(*array)[(unsigned int)s].decreasePriority();
-
-	return;
 }
 
 void Huffman::compress(){
+	// Generate Tree
+	input_size = symbolsCount;
+	Node *array;
+	createNodes(&array);
+
+	PQueue *queue = new PQueue();
+	for(int i = 0; i < 256; i++){
+		queue->enqueue(array+i);
+		if(array[i].getPriority())
+			maximum_compression_rate -= log2((double)(array[i].getPriority())/input_size)*(array[i].getPriority());
+	}
+	maximum_compression_rate /= 8.0;
+
+	tree = new HuffmanTree(queue);
+
+	code_table = new CompactTable[256];
+	symbol_table = new ConsultationTable[256];
+
+	tree->generateTables(code_table, symbol_table);
+
 	// Conta o número entradas da árvore e escreve
 	output->writeUInt(0x0000);
 	unsigned int count;
@@ -78,8 +84,11 @@ void Huffman::compress(){
 		//input->readByte(&auxCode);								// Lê um byte do arquivo de entrada
 		code = (unsigned int)auxCode;
 		output->writeBits(symbol_table[code].symbol, symbol_table[code].size); // Escreve a saída adequada
+		output_size += symbol_table[code].size;
 	}
-
+	output_size /= 8;
+	compression_rate = 100*((input_size-output_size)/(double)input_size);
+	maximum_compression_rate = 100*((input_size-maximum_compression_rate)/(double)input_size);
 }
 
 void Huffman::decompress(){
@@ -98,8 +107,6 @@ void Huffman::decompress(){
 		input->readByte(&code);
 		array[(unsigned int)code].setPriority(priority);
 		array[(unsigned int)code].setCode(code);
-		//array[i].setLeftChild(nullptr);
-		//array[i].setRightChild(nullptr);
 	}
 
 	PQueue *queue = new PQueue();
@@ -107,7 +114,6 @@ void Huffman::decompress(){
 		queue->enqueue(array+i);
 	}
 
-	delete tree;
 	tree = new HuffmanTree(queue);
 
 
@@ -123,6 +129,13 @@ void Huffman::decompress(){
 		}
 		output->writeByte(aux->getCode());	
 	}
+}
+
+void Huffman::info(){
+	std::cout << "Input Size:\t" << input_size << " Bytes" << std::endl;
+	std::cout << "Output Size:\t" << output_size << " Bytes" << std::endl;
+	std::cout << "Compression:\t" << compression_rate << "%" << std::endl;
+	std::cout << "Best Possible:\t" << maximum_compression_rate << "%" << std::endl;
 }
 
 //------------------------------------------------------------------------------------

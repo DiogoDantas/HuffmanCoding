@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "bitstream.h"
 #include <iostream> //////
+#include <cmath>
 
 typedef unsigned char Byte;
 
@@ -23,21 +24,23 @@ class HuffmanTree;
 class Huffman
 {
 public:
-	Huffman(std::string infile, std::string outfile);
+	Huffman(std::string infile, std::string outfile = "");
 	~Huffman();
 
 	void createNodes(Node** array);
 	void compress();
 	void decompress();
+	void info();
 private:
-	BitStream *input;
-	BitStream *output;
-	HuffmanTree *tree;
-	long input_size;
-	long output_size;
-	long compression_rate;
-	CompactTable* code_table;
-	ConsultationTable* symbol_table;
+	BitStream *input = nullptr;
+	BitStream *output = nullptr;
+	HuffmanTree *tree = nullptr;
+	long input_size = 0;
+	long output_size = 0;
+	double compression_rate = 0.0;
+	double maximum_compression_rate = 0.0;
+	CompactTable* code_table = nullptr;
+	ConsultationTable* symbol_table = nullptr;
 	unsigned long symbolsCount = 0;
 };
 
@@ -51,7 +54,7 @@ public:
 	void generateTables(CompactTable* code_table, ConsultationTable* symbol_table);
 	void searchLeaves(Node* node, Byte* symbol, const unsigned int size, CompactTable* code_table, ConsultationTable* symbol_table); 
 private:
-	Node *root;
+	Node *root = nullptr;
 };
 
 #endif // HUFFMAN_H

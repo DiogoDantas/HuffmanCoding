@@ -5,7 +5,7 @@ FLAGS = -std=c++11 -O2 -g3
 
 Huffman: main.o node.o pqueue.o huffman.o bitstream.o
 	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp bitstream.cpp $(FLAGS) -o Huffman
-	./Huffman
+	./Huffman ../files/another.txt
 	#make clean
 
 debug:
