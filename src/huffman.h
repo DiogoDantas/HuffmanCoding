@@ -9,12 +9,12 @@
 class Huffman
 {
 public:
-	Huffman(std::string infile, std::string outfile = "");
+	Huffman();
 	~Huffman();
 
 	void createNodes(Node** array);
-	void compress();
-	void decompress();
+	void compress(std::string infile);
+	void decompress(std::string infile);
 	void info();
 private:
 	BitStream *input = nullptr;

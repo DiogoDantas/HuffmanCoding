@@ -4,15 +4,15 @@
 //--------------------------------- HUFFMAN ------------------------------------------
 //------------------------------------------------------------------------------------
 
-Huffman::Huffman(std::string infile, std::string outfile){
+Huffman::Huffman(){
 
-	/*if(!outfile.compare("")){
-		if(!infile.substr(infile.length()-4).compare(".huf")){
-			outfile = infile.substr(0, infile.rfind("."));
-		}
-		else{
-			outfile = infile + ".huf";
-		}
+	//if(!outfile.compare("")){
+	//	if(!infile.substr(infile.length()-4).compare(".huf")){
+	//		outfile = infile.substr(0, infile.rfind("."));
+	//	}
+	//	else{
+	//		outfile = infile + ".huf";
+	//	}
 	
 		//outfile = infile;
 
@@ -20,13 +20,13 @@ Huffman::Huffman(std::string infile, std::string outfile){
 		//	outfile = outfile.substr(0, outfile.rfind("."));
 		
 		//outfile += ".huf";
-	}*/
+	//}
 
-	std::cout << infile << "\t" << outfile << std::endl;
-
+	//std::cout << infile << "\t" << outfile << std::endl;
+/*
 	input = new BitStream(infile, 1);
 	output = new BitStream(outfile, 0);
-	symbolsCount = input->size();
+	symbolsCount = input->size();*/
 }
 
 Huffman::~Huffman(){
@@ -50,7 +50,13 @@ void Huffman::createNodes(Node** array){
 	}
 }
 
-void Huffman::compress(){
+void Huffman::compress(std::string infile){
+	input = new BitStream(infile, 1);
+	output = new BitStream(infile+".huf", 0);
+	symbolsCount = input->size();
+
+	std::cout << "COMPRESSOR: " << infile+".huf" << std::endl;
+
 	// Generate Tree
 	input_size = symbolsCount;
 	Node *array;
@@ -101,7 +107,15 @@ void Huffman::compress(){
 	maximum_compression_rate = 100*((input_size-maximum_compression_rate)/(double)input_size);
 }
 
-void Huffman::decompress(){
+void Huffman::decompress(std::string infile){
+	input = new BitStream(infile, 1);
+	std::string outfile = infile;
+	outfile.erase(outfile.end()-4, outfile.end());
+	output = new BitStream(outfile, 0);
+	symbolsCount = input->size();
+
+	std::cout << "DESCOMPRESSOR: " << outfile << std::endl;
+
 	// Ler e construir árvore
 	input->reset();
 	unsigned int count;
