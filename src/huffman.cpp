@@ -87,16 +87,19 @@ void Huffman::decompress(){
 	input->reset();
 	unsigned int count;
 	input->readUInt(&count);
+	input->readUInt(&count);
 
 	Node *array = new Node[256];
+	unsigned int priority;
+	Byte code;
 
 	for(int i = 0; i < count; i++){
-		input->readUInt(&code_table[i].priority);
-		input->readByte(&code_table[i].code);
-		array->setPriority(code_table[i].priority);
-		array->setCode(code_table[i].code);
-		array->setLeftChild(nullptr);
-		array->setRightChild(nullptr);
+		input->readUInt(&priority);
+		input->readByte(&code);
+		array[(unsigned int)code].setPriority(priority);
+		array[(unsigned int)code].setCode(code);
+		//array[i].setLeftChild(nullptr);
+		//array[i].setRightChild(nullptr);
 	}
 
 	PQueue *queue = new PQueue();
@@ -104,6 +107,7 @@ void Huffman::decompress(){
 		queue->enqueue(array+i);
 	}
 
+	delete tree;
 	tree = new HuffmanTree(queue);
 
 
