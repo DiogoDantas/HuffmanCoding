@@ -4,11 +4,6 @@ PQueue::PQueue(){}
 
 PQueue::~PQueue(){}
 
-void PQueue::insert(Node* node){
-
-	prt_queue.push_back(node);
-}
-
 void PQueue::enqueue(Node* node){
 
 	prt_queue.push_back(node);
@@ -27,10 +22,6 @@ Node* PQueue::top() const{
 	return prt_queue.front();
 }
 
-//void PQueue::build_heap(){
-
-	//heap_sort(prt_queue);
-//}
 
 void PQueue::print_queue() const{
 	
@@ -65,38 +56,4 @@ void PQueue::insertion_sort(std::vector<Node*> &list)
 	}
 }
 
-/*void PQueue::max_heapify( std::vector<Node*> &lista, const int pos, const int n ){
-	int max = 2 * pos + 1;
 
-    if( max < n )
-    {
-       if( (max+1) < n && lista.at(max)->getPriority() > lista.at(max+1)->getPriority() )
-       {
-          ++max;
-       }
-       if( lista.at(max)->getPriority() < lista.at(pos)->getPriority() )
-       {
-          std::swap( lista[max], lista[pos] );
-          max_heapify( lista, max, n );
-       }
-    }
-}
-
-void PQueue::heap_sort( std::vector<Node*> &lista ){
-
-	int tam = static_cast<int>( lista.size() ); 
-    int i;
-
-    for( i = tam/2 - 1; i >= 0; --i )
-    {
-       max_heapify(lista, i , tam );
-    }
-
-    std::vector<Node*>::reverse_iterator elem;
-
-    for( elem = lista.rbegin(); elem != lista.rend(); elem++ )
-    {
-       std::iter_swap( elem, lista.begin() );
-       max_heapify( lista, 0, --tam );
-    }
-}*/
