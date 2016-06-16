@@ -1,5 +1,5 @@
 #include "bitstream.h"
-#define complete_1 do {while(mask){ buffer |= mask; mask >>= 1; }}while(0)
+#define complete_1() do {while(mask){ buffer |= mask; mask >>= 1; }}while(0)
 
 BitStream::BitStream(std::string filename, int r = 1):
 	file(),
@@ -17,7 +17,7 @@ BitStream::BitStream(std::string filename, int r = 1):
 
 BitStream::~BitStream(){
 	if(mask != 0x80 && !read){
-		complete_1;
+		complete_1();
 		file.write((char*)&buffer, sizeof(Byte));
 	}
 

@@ -5,14 +5,24 @@
 //------------------------------------------------------------------------------------
 
 Huffman::Huffman(std::string infile, std::string outfile){
-	if(!outfile.compare("")){
-		outfile = infile;
 
-		if(outfile.rfind(".") != std::string::npos)
-			outfile = outfile.substr(0, outfile.rfind("."));
+	/*if(!outfile.compare("")){
+		if(!infile.substr(infile.length()-4).compare(".huf")){
+			outfile = infile.substr(0, infile.rfind("."));
+		}
+		else{
+			outfile = infile + ".huf";
+		}
+	
+		//outfile = infile;
+
+		//if(outfile.rfind(".") != std::string::npos)
+		//	outfile = outfile.substr(0, outfile.rfind("."));
 		
-		outfile += ".huf";
-	}
+		//outfile += ".huf";
+	}*/
+
+	std::cout << infile << "\t" << outfile << std::endl;
 
 	input = new BitStream(infile, 1);
 	output = new BitStream(outfile, 0);
@@ -70,7 +80,7 @@ void Huffman::compress(){
 	output->writeUInt(count);
 
 	// Escreve a árvore
-	for(int i = 0; i < count; i++){
+	for(unsigned int i = 0; i < count; i++){
 		output->writeUInt(code_table[i].priority);
 		output->writeByte(code_table[i].code);
 	}
@@ -102,7 +112,7 @@ void Huffman::decompress(){
 	unsigned int priority;
 	Byte code;
 
-	for(int i = 0; i < count; i++){
+	for(unsigned int i = 0; i < count; i++){
 		input->readUInt(&priority);
 		input->readByte(&code);
 		array[(unsigned int)code].setPriority(priority);

@@ -1,15 +1,14 @@
 CC = g++
-FLAGS = -std=c++11 -O2 -g3
+FLAGS = -std=c++11 -O2 -g3 -Wall -Werror -pedantic
 
 .PHONY: debug clean Huffman
 
 Huffman: main.o node.o pqueue.o huffman.o huffmantree.o bitstream.o
 	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp huffmantree.cpp bitstream.cpp $(FLAGS) -o Huffman
-	./Huffman ../files/another.txt
-	#make clean
+	./Huffman
 
 debug:
-	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp bitstream.cpp $(FLAGS) -o Huffman
+	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp huffmantree.cpp bitstream.cpp $(FLAGS) -o Huffman
 	gdb ./Huffman
 
 main.o: main.cpp

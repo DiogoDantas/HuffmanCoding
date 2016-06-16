@@ -25,7 +25,7 @@ Node* PQueue::top() const{
 
 void PQueue::print_queue() const{
 	
-	for (int i = 0; i < prt_queue.size(); ++i)
+	for (unsigned int i = 0; i < prt_queue.size(); ++i)
 	{
 		std::cout<<prt_queue.at(i)->getPriority()<< " "<<prt_queue.at(i)->getCode() << " ";
 	}
@@ -42,7 +42,8 @@ void PQueue::insertion_sort(std::vector<Node*> &list)
 {
 
 	Node* tmp = 0;
-	int i = 0, j = 0;
+	unsigned int i = 0;
+	int j = 0;
 
 	for (i = 1; i < list.size(); ++i)
 	{

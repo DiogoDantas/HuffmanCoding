@@ -3,7 +3,7 @@
 
 #include <fstream>
 #include <iostream>
-#include <bitset>
+//#include <bitset>
 typedef unsigned char Byte;
 
 class BitStream{

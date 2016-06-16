@@ -73,8 +73,6 @@ void HuffmanTree::searchLeaves(Node* node, Byte* symbol, const unsigned int size
 		unsigned int pos = (unsigned int)node->getCode();
 		symbol_table[pos].size = size;
 		std::copy(symbol, symbol+16, symbol_table[pos].symbol);
-		int n = size;
-		unsigned char mask = 1;
 	}
 
 	/**
