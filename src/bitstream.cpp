@@ -1,10 +1,8 @@
 #include "bitstream.h"
 #define complete_1 do {while(mask){ buffer |= mask; mask >>= 1; }}while(0)
 
-BitStream::BitStream(std::string filename, int r):
+BitStream::BitStream(std::string filename, int r = 1):
 	file(),
-	buffer(0),
-	mask(0x80),
 	read(r)
 {
 	if(r) file.open(filename, std::fstream::in | std::fstream::binary);

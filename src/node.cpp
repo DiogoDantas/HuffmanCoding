@@ -1,9 +1,8 @@
 #include "node.h"
 
-Node::Node(): code(0), priority(0), right_child(nullptr), left_child(nullptr){
-}
+Node::Node(){}
 
-Node::~Node(){;} // Instrução Vazia
+Node::~Node(){}
 
 int Node::getPriority() const {
 	return this->priority;

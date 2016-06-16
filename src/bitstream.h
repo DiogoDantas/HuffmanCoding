@@ -30,8 +30,8 @@ public:
 	int eof() const;
 private:
 	std::fstream file;
-	Byte buffer;
-	Byte mask;
+	Byte buffer = 0x00;
+	Byte mask = 0x80;
 	int read;
 };
 
