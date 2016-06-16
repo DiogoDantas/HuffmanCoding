@@ -1,47 +1,57 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
-#include <fstream>
 #include "pqueue.h"
+#include <algorithm>
+#include "bitstream.h"
+#include <iostream> //////
 
 typedef unsigned char Byte;
 
-typedef struct 
-{
+typedef struct {
 	unsigned int priority;
 	unsigned char code;
 } CompactTable;
 
-typedef struct 
-{
+typedef struct {
 	Byte symbol[16];
 	unsigned int size;
 } ConsultationTable;
 
+class HuffmanTree;
+
 class Huffman
 {
 public:
-	Huffman();
+	Huffman(std::string infile, std::string outfile);
 	~Huffman();
-	void insert_queue(Node* node);
-	void build_tree();
-	void print_tree(Node* node) const;
-	Node* getRoot() const;
-	void generateTS();
-	void generateTables();
-	void fileCompress(const std::string sourceFile, const std::string outputFile);
-	void fileDescompress(const std::string sourceFile, const std::string outputFile);
 
-	unsigned long bits = 0;
-	unsigned long symbols = 0;
-	// MUDAR!!
+	void createNodes(Node** array);
+	void compress();
+	void decompress();
+private:
+	BitStream *input;
+	BitStream *output;
+	HuffmanTree *tree;
+	long input_size;
+	long output_size;
+	long compression_rate;
 	CompactTable* code_table;
 	ConsultationTable* symbol_table;
+	unsigned long symbolsCount = 0;
+};
+
+class HuffmanTree{
+public:
+	HuffmanTree(PQueue *queue);
+	~HuffmanTree();
+	Node* getRoot() const;
+	void build_tree(PQueue *queue);
+	void print_tree(Node* node) const;
+	void generateTables(CompactTable* code_table, ConsultationTable* symbol_table);
+	void searchLeaves(Node* node, Byte* symbol, const unsigned int size, CompactTable* code_table, ConsultationTable* symbol_table); 
 private:
-	void searchLeaves(Node* node, Byte* symbol, const unsigned int size);
-	
-	PQueue* queue;
-	Node* root;
+	Node *root;
 };
 
 #endif // HUFFMAN_H

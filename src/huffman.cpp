@@ -1,52 +1,162 @@
 #include "huffman.h"
-#include <algorithm>
-#include <iostream>
 
-Huffman::Huffman():root(nullptr){
+//------------------------------------------------------------------------------------
+//--------------------------------- HUFFMAN ------------------------------------------
+//------------------------------------------------------------------------------------
 
-	this->queue = new PQueue();
+Huffman::Huffman(std::string infile, std::string outfile):
+	input_size(0),
+	output_size(0),
+	compression_rate(0)
+{
+	input = new BitStream(infile, 1);
+	output = new BitStream(outfile, 0);
+	symbolsCount = input->size();
+
+	Node *array;
+	createNodes(&array);
+
+	PQueue *queue = new PQueue();
+	for(int i = 0; i < 256; i++){
+		queue->enqueue(array+i);
+	}
+
+	tree = new HuffmanTree(queue);
+
+	code_table = new CompactTable[256];
+	symbol_table = new ConsultationTable[256];
+
+	tree->generateTables(code_table, symbol_table);
 }
 
-Huffman::~Huffman(){}
+Huffman::~Huffman(){
+	delete input;
+	delete output;
+	delete tree;
+}
 
-void Huffman::insert_queue(Node* node){
-	if(node->getPriority() == 0) return;
-	queue->enqueue(node);
+void Huffman::createNodes(Node** array){
+	*array = new Node[256];
+
+	for(int i = 0; i < 256; i++){
+		(*array)[i].setCode((unsigned char)i);
+	}
+
+	Byte s;
+
+	while(!input->eof()){
+		input->readByte(&s);
+		(*array)[(unsigned int)s].increasePriority();
+	}
+
+	(*array)[(unsigned int)s].decreasePriority();
+
+	return;
+}
+
+void Huffman::compress(){
+	// Conta o número entradas da árvore e escreve
+	output->writeUInt(0x0000);
+	unsigned int count;
+	for(count = 0; count < 256; count++)
+		if(!code_table[count].priority)
+			break;
+	output->writeUInt(count);
+
+	// Escreve a árvore
+	for(int i = 0; i < count; i++){
+		output->writeUInt(code_table[i].priority);
+		output->writeByte(code_table[i].code);
+	}
+	output->writeULong(symbolsCount);
+
+	// Escreve o conteúdo da mensagem
+	input->reset();
+	unsigned int code;
+	Byte auxCode;
+	while(!input->readByte(&auxCode)){									
+		//input->readByte(&auxCode);								// Lê um byte do arquivo de entrada
+		code = (unsigned int)auxCode;
+		output->writeBits(symbol_table[code].symbol, symbol_table[code].size); // Escreve a saída adequada
+	}
 
 }
 
-Node* Huffman::getRoot() const {
+void Huffman::decompress(){
+	// Ler e construir árvore
+	input->reset();
+	unsigned int count;
+	input->readUInt(&count);
 
+	Node *array = new Node[256];
+
+	for(int i = 0; i < count; i++){
+		input->readUInt(&code_table[i].priority);
+		input->readByte(&code_table[i].code);
+		array->setPriority(code_table[i].priority);
+		array->setCode(code_table[i].code);
+		array->setLeftChild(nullptr);
+		array->setRightChild(nullptr);
+	}
+
+	PQueue *queue = new PQueue();
+	for(int i = 0; i < 256; i++){
+		queue->enqueue(array+i);
+	}
+
+	tree = new HuffmanTree(queue);
+
+
+	input->readULong(&symbolsCount);
+	Node *aux;
+	while(symbolsCount-- > 0){
+		aux = tree->getRoot();
+		while(aux->getLeftChild() && aux->getRightChild()){
+			if(input->readBit())
+				aux = aux->getRightChild();
+			else
+				aux = aux->getLeftChild();
+		}
+		output->writeByte(aux->getCode());	
+	}
+}
+
+//------------------------------------------------------------------------------------
+//----------------------------- HUFFMANTREE ------------------------------------------
+//------------------------------------------------------------------------------------
+
+
+HuffmanTree::HuffmanTree(PQueue *queue){
+	build_tree(queue);
+}
+
+HuffmanTree::~HuffmanTree(){}
+
+Node* HuffmanTree::getRoot() const {
 	return this->root;
 }
 
-void Huffman::build_tree(){
+void HuffmanTree::build_tree(PQueue *queue){
 
-	if (queue->size() == 1)
-	{
+	if (queue->size() == 1){
 		root = queue->top();
 		return;
 	}
 
-
 	Node *left_node, *right_node, *new_node;
-
 	new_node = new Node();
-
 	left_node = queue->dequeue();
 	right_node = queue->dequeue();
 
 	new_node->setPriority(left_node->getPriority() + right_node->getPriority());
-
 	new_node->setLeftChild(left_node);
 	new_node->setRightChild(right_node);
-
 	queue->enqueue(new_node);
 
-	Huffman::build_tree();
+	build_tree(queue);
 }
 
-void Huffman::print_tree(Node* node) const {
+void HuffmanTree::print_tree(Node* node) const {
 	if(node != NULL){
 		std::cout << node->getPriority();
 
@@ -58,17 +168,16 @@ void Huffman::print_tree(Node* node) const {
 			std::cout << "]";
 		}
 	}
-
 	return;
 }
 
-void Huffman::generateTables(){
+void HuffmanTree::generateTables(CompactTable* code_table, ConsultationTable* symbol_table){
 
 	Byte aux[16] = {0};
-	searchLeaves(root, aux, 0U);
+	searchLeaves(root, aux, 0U, code_table, symbol_table);
 }
 
-void Huffman::searchLeaves(Node* node, Byte* symbol, const unsigned int size){ 
+void HuffmanTree::searchLeaves(Node* node, Byte* symbol, const unsigned int size, CompactTable* code_table, ConsultationTable* symbol_table){ 
 
 	/**
 		A função busca recursivamente por folhas. Quando encontra 
@@ -86,24 +195,8 @@ void Huffman::searchLeaves(Node* node, Byte* symbol, const unsigned int size){
 		unsigned int pos = (unsigned int)node->getCode();
 		symbol_table[pos].size = size;
 		std::copy(symbol, symbol+16, symbol_table[pos].symbol);
-
-		bits += node->getPriority()*size;
-		symbols += node->getPriority();
-
 		int n = size;
 		unsigned char mask = 1;
-		/*std::cout << (unsigned int)(unsigned char)node->getCode() << "\t";
-
-		while(n-- > 0){
-			std::cout << ((mask<<n%64) & symbol[n/64] ? 1 : 0);
-		}
-
-		for(int i = 0; i < 10-size; i++) std::cout << " ";
-
-		std::cout << "\t" << node->getPriority() << "\t" << size;
-
-		std::cout << std::endl;
-		return;*/
 	}
 
 	/**
@@ -127,22 +220,11 @@ void Huffman::searchLeaves(Node* node, Byte* symbol, const unsigned int size){
 	}
 	symbol[0] <<= 1;
 	
-	
-/* LONG ---------------------------------
-	symbol[3] <<= 1;
-	symbol[3] ^= symbol[2] & aux ? 1 : 0;
-	symbol[2] <<= 1;
-	symbol[2] ^= symbol[1] & aux ? 1 : 0;
-	symbol[1] <<= 1;
-	symbol[1] ^= symbol[0] & aux ? 1 : 0;
-	symbol[0] <<= 1;
-// LONG --------------------------------*/
-	
-	searchLeaves(node->getLeftChild(), symbol, size+1);
+	searchLeaves(node->getLeftChild(), symbol, size+1, code_table, symbol_table);
 
 	symbol[0] |= 1;
 
-	searchLeaves(node->getRightChild(), symbol, size+1);
+	searchLeaves(node->getRightChild(), symbol, size+1, code_table, symbol_table);
 
 	aux = 1U;
 
@@ -151,150 +233,4 @@ void Huffman::searchLeaves(Node* node, Byte* symbol, const unsigned int size){
 		symbol[i] ^= symbol[i+1] & aux ? ((Byte)1<<7) : 0;
 	}
 	symbol[3] <<= 1;
-
-/* LONG -----------------------------------
-	symbol[0] >>= 1;
-	symbol[0] ^= symbol[1] & aux ? (1UL<<63) : 0;
-	symbol[1] <<= 1;
-	symbol[1] ^= symbol[2] & aux ? (1UL<<63) : 0;
-	symbol[2] <<= 1;
-	symbol[2] ^= symbol[3] & aux ? (1UL<<63) : 0;
-	symbol[3] <<= 1;
-// LONG ------------------------------------*/
-}
-
-void Huffman::fileCompress(const std::string sourceFile, const std::string outputFile){
-	std::ifstream source_file;
-	std::ofstream output_file;
-
-	source_file.open(sourceFile, std::fstream::binary | std::fstream::in);
-	output_file.open(outputFile, std::fstream::binary | std::fstream::out);
-
-	if((!source_file.good()) || (!output_file.good())){
-		perror("open");
-		exit(1);
-	}
-
-	// Escreve a árvore
-	unsigned int count;
-	for(count = 0; count < 256; count++)
-		if(!code_table[count].priority)
-			break;
-
-	output_file.write((char*)&count, sizeof(unsigned int));
-
-	for(int i = 0; i < count; i++){
-		output_file.write((char*)&code_table[i], 5);
-	}
-
-	output_file.write((char*)&symbols, sizeof(unsigned long));
-
-	// Escreve o conteúdo da mensagem
-	unsigned int BLOCK_SIZE = 8;	// Usando long
-	unsigned int code;
-	char auxCode;
-	Byte outputBlock = 0;
-	Byte auxBlock = 0;
-	unsigned int remainingBits;
-	unsigned int freeBits = BLOCK_SIZE;
-	Byte *symbol;
-
-	while(!source_file.eof()){
-		source_file.read(&auxCode, sizeof(char));				// Lê um byte do arquivo de entrada
-		code = (unsigned int)(unsigned char)auxCode;
-
-		remainingBits = symbol_table[code].size;				// Número de bits que ainda falta ser escrito na saída
-		symbol = symbol_table[code].symbol;						// Símbolo a ser escrito na saída
-
-		while(remainingBits > 0){								// Enquanto houverem bits para escrever...
-			int piece = (remainingBits-1)/BLOCK_SIZE;			// Primeiro pedaço (cada um dos 4 longs do símbolo) que possui bits válidos
-			int pieceSize = (remainingBits-1)%BLOCK_SIZE+1;		// Tamanho do primeiro Long válido
-
-			auxBlock = symbol[piece];							// Copie este pedaço para auxBlock e posicione os bits
-			auxBlock <<= BLOCK_SIZE-pieceSize;					// no local correto para escrever no bloco de saída
-			auxBlock >>= BLOCK_SIZE-freeBits;						
-			outputBlock |= auxBlock;
-
-			if(pieceSize < freeBits){							// Ajusta o número de bits livres e o número de  				
-				remainingBits -= pieceSize;						// bits que ainda falta ser lido
-				freeBits -= pieceSize;
-			}
-			else{
-				remainingBits -= freeBits;
-				freeBits = BLOCK_SIZE;
-				output_file.write((char*)&outputBlock, sizeof(Byte));
-				outputBlock = 0;
-			}
-		}
-	}
-
-	if(freeBits > 0){
-		outputBlock |= ((Byte)0 - (Byte)1) >> BLOCK_SIZE-freeBits;
-		output_file.write((char*)&outputBlock, sizeof(Byte));
-	}
-	
-	output_file.close();
-	source_file.close();
-
-}
-
-void Huffman::fileDescompress(const std::string sourceFile, const std::string outputFile){
-
-	std::ifstream source_file;
-	std::ofstream output_file;
-
-	source_file.open(sourceFile, std::fstream::binary | std::fstream::in);
-	output_file.open(outputFile, std::fstream::binary | std::fstream::out);
-
-	if((!source_file.good()) || (!output_file.good())){
-		perror("open");
-		exit(1);
-	}
-
-	// Ler e construir árvore
-	unsigned int count;
-	source_file.read((char*)&count, sizeof(unsigned int));
-
-	Node* tmp;
-
-	for(int i = 0; i < count; i++){
-		source_file.read((char*)&code_table[i], 5);
-		tmp = new Node;
-		tmp->setPriority(code_table[i].priority);
-		tmp->setCode(code_table[i].code);
-		tmp->setLeftChild(nullptr);
-		tmp->setRightChild(nullptr);
-	}
-
-	build_tree();
-
-	source_file.read((char*)&symbols, sizeof(unsigned long));
-
-	Node *aux;
-	Byte mask = 0;
-	Byte block;
-
-	while(symbols-- > 0){
-		aux = root;
-		while(aux->getLeftChild() && aux->getRightChild()){
-
-			if(!mask){
-				source_file.read((char*)&block, sizeof(Byte));
-				mask = (Byte)1 << 7;
-			}
-
-			if(mask & block)
-				aux = aux->getRightChild();
-			else
-				aux = aux->getLeftChild();
-
-			mask >>= 1;
-		}
-		
-		unsigned char wrt = aux->getCode();
-		output_file.write((char*)&wrt, sizeof(unsigned char));	
-	}
-
-	output_file.close();
-	source_file.close();
 }

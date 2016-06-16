@@ -5,7 +5,7 @@ PQueue::PQueue(){}
 PQueue::~PQueue(){}
 
 void PQueue::enqueue(Node* node){
-
+	if(node->getPriority() == 0) return;
 	prt_queue.push_back(node);
 
 	insertion_sort(prt_queue);

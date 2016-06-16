@@ -26,6 +26,8 @@ public:
 	void writeULong(unsigned long data);
 
 	int size();
+	void reset();
+	int eof() const;
 private:
 	std::fstream file;
 	Byte buffer;

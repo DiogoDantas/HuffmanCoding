@@ -3,12 +3,13 @@ FLAGS = -std=c++11 -O2 -g3
 
 .PHONY: debug clean Huffman
 
-Huffman: main.o node.o pqueue.o huffman.o loader.o
-	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp loader.cpp $(FLAGS) -o Huffman
-	./Huffman $(ARGS)
+Huffman: main.o node.o pqueue.o huffman.o bitstream.o
+	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp bitstream.cpp $(FLAGS) -o Huffman
+	./Huffman
+	#make clean
 
 debug:
-	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp loader.cpp $(FLAGS) -o Huffman
+	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp bitstream.cpp $(FLAGS) -o Huffman
 	gdb ./Huffman
 
 main.o: main.cpp
@@ -23,8 +24,8 @@ pqueue.o: pqueue.cpp
 huffman.o: huffman.cpp
 	$(CC) huffman.cpp $(FLAGS) -c
 
-loader.o: loader.cpp
-	$(CC) loader.cpp $(FLAGS) -c
+bitstream.o: bitstream.cpp
+	$(CC) bitstream.cpp $(FLAGS) -c
 
 
 clean: 

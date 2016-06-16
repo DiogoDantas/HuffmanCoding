@@ -19,12 +19,7 @@ BitStream::BitStream(std::string filename, int r):
 
 BitStream::~BitStream(){
 	if(mask != 0x80 && !read){
-		//while(mask){
-			//buffer |= mask;
-			//mask >>= 1;
-		//}
-		//complete_1;
-
+		complete_1;
 		file.write((char*)&buffer, sizeof(Byte));
 	}
 
@@ -33,10 +28,19 @@ BitStream::~BitStream(){
 
 int BitStream::size(){
 	file.seekg(0, file.end);
-    int length = file.tellg();
+	int length = file.tellg();
 	file.seekg (0, file.beg);
 
 	return length;
+}
+
+void BitStream::reset(){
+	file.clear();
+	file.seekg(0, file.beg);
+}
+
+int BitStream::eof() const{
+	return file.eof();
 }
 
 int BitStream::readBit(){
