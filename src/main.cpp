@@ -3,14 +3,21 @@
 
 int main(int argc, char const *argv[])
 {
-	std::string name = argv[2];
+	if(argc < 3){
+		std::cout << "Número insuficiente de argumentos" << std::endl;
+		exit(0); 
+	}
+
 	Huffman* h1 = new Huffman();
-	if(!strcmp(argv[1], "compress")){
-		h1->compress("../files/" + name);
+	if(!strcmp(argv[1], "-c")){
+		h1->compress("../files/" + std::string{argv[2]});
 		h1->info();
 	}
-	else if(!strcmp(argv[1], "decompress")){
-		h1->decompress("../files/" + name);
+	else if(!strcmp(argv[1], "-d")){
+		h1->decompress("../files/" + std::string{argv[2]});
+	}
+	else{
+		std::cout << "Comando inválido" << std::endl;
 	}
 	
 	delete h1;
