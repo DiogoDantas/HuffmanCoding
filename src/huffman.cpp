@@ -40,22 +40,20 @@ void Huffman::createNodes(Node** array){
 	*array = new Node[256];
 
 	for(int i = 0; i < 256; i++){
-		(*array)[i].setCode((unsigned char)i);
+		(*array)[i].setCode(static_cast<unsigned char>(i));
 	}
 
 	Byte s;
 
 	while(!input->readByte(&s)){
-		(*array)[(unsigned int)s].increasePriority();
+		(*array)[static_cast<unsigned int>(s)].increasePriority();
 	}
 }
 
-void Huffman::compress(std::string infile){
+void Huffman::compress(const std::string infile){
 	input = new BitStream(infile, 1);
 	output = new BitStream(infile+".huf", 0);
 	symbolsCount = input->size();
-
-	std::cout << "COMPRESSOR: " << infile+".huf" << std::endl;
 
 	// Generate Tree
 	input_size = symbolsCount;
@@ -66,7 +64,7 @@ void Huffman::compress(std::string infile){
 	for(int i = 0; i < 256; i++){
 		queue->enqueue(array+i);
 		if(array[i].getPriority())
-			maximum_compression_rate -= log2((double)(array[i].getPriority())/input_size)*(array[i].getPriority());
+			maximum_compression_rate -= log2(static_cast<double>(array[i].getPriority())/input_size)*(array[i].getPriority());
 	}
 	maximum_compression_rate /= 8.0;
 
@@ -103,18 +101,16 @@ void Huffman::compress(std::string infile){
 		output_size += symbol_table[code].size;
 	}
 	output_size /= 8;
-	compression_rate = 100*((input_size-output_size)/(double)input_size);
-	maximum_compression_rate = 100*((input_size-maximum_compression_rate)/(double)input_size);
+	compression_rate = 100*((input_size-output_size)/static_cast<double>(input_size));
+	maximum_compression_rate = 100*((input_size-maximum_compression_rate)/static_cast<double>(input_size));
 }
 
-void Huffman::decompress(std::string infile){
+void Huffman::decompress(const std::string infile){
 	input = new BitStream(infile, 1);
 	std::string outfile = infile;
 	outfile.erase(outfile.end()-4, outfile.end());
 	output = new BitStream(outfile, 0);
 	symbolsCount = input->size();
-
-	std::cout << "DESCOMPRESSOR: " << outfile << std::endl;
 
 	// Ler e construir árvore
 	input->reset();
@@ -129,8 +125,8 @@ void Huffman::decompress(std::string infile){
 	for(unsigned int i = 0; i < count; i++){
 		input->readUInt(&priority);
 		input->readByte(&code);
-		array[(unsigned int)code].setPriority(priority);
-		array[(unsigned int)code].setCode(code);
+		array[static_cast<unsigned int>(code)].setPriority(priority);
+		array[static_cast<unsigned int>(code)].setCode(code);
 	}
 
 	PQueue *queue = new PQueue();
@@ -155,7 +151,7 @@ void Huffman::decompress(std::string infile){
 	}
 }
 
-void Huffman::info(){
+void Huffman::info() const {
 	std::cout << "Input Size:\t" << input_size << " Bytes" << std::endl;
 	std::cout << "Output Size:\t" << output_size << " Bytes" << std::endl;
 	std::cout << "Compression:\t" << compression_rate << "%" << std::endl;

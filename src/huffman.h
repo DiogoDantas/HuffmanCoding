@@ -13,9 +13,9 @@ public:
 	~Huffman();
 
 	void createNodes(Node** array);
-	void compress(std::string infile);
-	void decompress(std::string infile);
-	void info();
+	void compress(const std::string infile);
+	void decompress(const std::string infile);
+	void info()const;
 private:
 	BitStream *input = nullptr;
 	BitStream *output = nullptr;
