@@ -3,12 +3,12 @@ FLAGS = -std=c++11 -O2 -g3 -Wall -Werror -pedantic
 
 .PHONY: debug clean Huffman
 
-Huffman: main.o node.o pqueue.o huffman.o huffmantree.o bitstream.o
-	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp huffmantree.cpp bitstream.cpp $(FLAGS) -o Huffman
+Huffman: *.o
+	$(CC) *.o $(FLAGS) -o Huffman
 	./Huffman
 
-debug:
-	$(CC) main.cpp node.cpp pqueue.cpp huffman.cpp huffmantree.cpp bitstream.cpp $(FLAGS) -o Huffman
+debug: *.o
+	$(CC) *.o $(FLAGS) -o Huffman
 	gdb ./Huffman
 
 main.o: main.cpp
